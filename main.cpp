@@ -28,18 +28,18 @@ protected:
     }
 
 public:
-    template <typename T>
-    static void info(T &&message)
+    template <typename... Args>
+    static void info(Args &&...args)
     {
-        spdlog::info(std::forward<T>(message));
-        Logger::get_instance().file_logger_->info(std::forward<T>(message));
+        spdlog::info(std::forward<Args>(args)...);
+        Logger::get_instance().file_logger_->info(std::forward<Args>(args)...);
     }
 
-    template <typename T>
-    static void error(T &&message)
+    template <typename... Args>
+    static void error(Args &&...args)
     {
-        spdlog::error(std::forward<T>(message));
-        Logger::get_instance().file_logger_->error(std::forward<T>(message));
+        spdlog::error(std::forward<Args>(args)...);
+        Logger::get_instance().file_logger_->error(std::forward<Args>(args)...);
     }
 
 protected:
@@ -64,12 +64,12 @@ void apply_game_settings(const std::vector<Game> games, std::function<std::strin
             }
             catch (const std::exception &e)
             {
-                Logger::error("Error applying game settings: " + std::string(e.what()));
+                Logger::error("Error applying game settings: {}", e.what());
             }
         }
         else
         {
-            Logger::error(applied_game_settings_file_path.string() + " not exists");
+            Logger::error("{} not exists", applied_game_settings_file_path.string());
         }
     }
 }
@@ -93,7 +93,7 @@ int main()
     auto config_file_path = std::filesystem::path(util::get_executable_directory()) / "config.json";
     if (!std::filesystem::exists(config_file_path))
     {
-        Logger::error(config_file_path.string() + " not found");
+        Logger::error("{} not found", config_file_path.string());
         return 1;
     }
     std::ifstream f(config_file_path);
@@ -104,7 +104,7 @@ int main()
     }
     catch (const std::exception &e)
     {
-        Logger::error("Error parsing config file: " + std::string(e.what()));
+        Logger::error("Error parsing config file: {}", std::string(e.what()));
         return 1;
     }
     auto height = util::get_resolution_height();
