@@ -1,24 +1,24 @@
 #include <windows.h>
 //
 #include <iostream>
+#include <functional>
 #include <fstream>
 #include <vector>
 #include <filesystem>
 #include "config.h"
 #include "util.h"
 
-void apply_native_settings(const Config &config)
+void apply_game_settings(const std::vector<Game> games, std::function<std::string(const Game &)> game_settings_filepath_getter)
 {
-    util::change_monitor_settings(config.native_monitor_settings.width, config.native_monitor_settings.height, config.native_monitor_settings.refresh_rate);
-    for (const auto &game : config.games)
+    for (const auto &game : games)
     {
-        auto native_settings_file_path = std::filesystem::path(game.native_settings_file_path);
-        auto settings_file_path = std::filesystem::path(game.settings_file_path);
-        if (std::filesystem::exists(native_settings_file_path))
+        auto applied_game_settings_file_path = std::filesystem::path(game_settings_filepath_getter(game));
+        auto game_settings_file_path = std::filesystem::path(game.settings_file_path);
+        if (std::filesystem::exists(applied_game_settings_file_path))
         {
             try
             {
-                util::overwrite_file(native_settings_file_path, settings_file_path);
+                util::overwrite_file(applied_game_settings_file_path, game_settings_file_path);
             }
             catch (const std::exception &e)
             {
@@ -27,34 +27,21 @@ void apply_native_settings(const Config &config)
         }
         else
         {
-            std::cout << game.native_settings_file_path << " not exists" << std::endl;
+            std::cout << applied_game_settings_file_path << " not exists" << std::endl;
         }
     }
+}
+
+void apply_native_settings(const Config &config)
+{
+    util::change_monitor_settings(config.native_monitor_settings.width, config.native_monitor_settings.height, config.native_monitor_settings.refresh_rate);
+    apply_game_settings(config.games, [](const Game &game) { return game.native_settings_file_path; });
 }
 
 void apply_streaming_settings(const Config &config)
 {
     util::change_monitor_settings(config.streaming_monitor_settings.width, config.streaming_monitor_settings.height, config.streaming_monitor_settings.refresh_rate);
-    for (const auto &game : config.games)
-    {
-        auto streaming_settings_file_path = std::filesystem::path(game.streaming_settings_file_path);
-        auto settings_file_path = std::filesystem::path(game.settings_file_path);
-        if (std::filesystem::exists(streaming_settings_file_path))
-        {
-            try
-            {
-                util::overwrite_file(streaming_settings_file_path, settings_file_path);
-            }
-            catch (const std::exception &e)
-            {
-                std::cout << e.what() << std::endl;
-            }
-        }
-        else
-        {
-            std::cout << game.streaming_settings_file_path << " not exists" << std::endl;
-        }
-    }
+    apply_game_settings(config.games, [](const Game &game) { return game.streaming_settings_file_path; });
 }
 
 int main()
