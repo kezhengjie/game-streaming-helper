@@ -1,12 +1,54 @@
 #include <windows.h>
 //
-#include <iostream>
 #include <functional>
 #include <fstream>
 #include <vector>
 #include <filesystem>
 #include "config.h"
 #include "util.h"
+
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
+struct Logger
+{
+protected:
+    Logger()
+    {
+        file_logger_ = spdlog::basic_logger_mt("log", (std::filesystem::path(util::get_executable_directory()) / "game-streaming-helper.log").string());
+        file_logger_->set_pattern(get_pattern());
+        spdlog::set_pattern(get_pattern());
+    }
+    ~Logger() {}
+
+    static Logger &get_instance()
+    {
+        static Logger global_logger;
+        return global_logger;
+    }
+
+public:
+    template <typename T>
+    static void info(T &&message)
+    {
+        spdlog::info(std::forward<T>(message));
+        Logger::get_instance().file_logger_->info(std::forward<T>(message));
+    }
+
+    template <typename T>
+    static void error(T &&message)
+    {
+        spdlog::error(std::forward<T>(message));
+        Logger::get_instance().file_logger_->error(std::forward<T>(message));
+    }
+
+protected:
+    static std::string get_pattern()
+    {
+        return "[%Y-%m-%d %H:%M:%S.%e] [%l] %v";
+    }
+    decltype(spdlog::basic_logger_mt("basic_logger", "logs/basic-log.txt")) file_logger_;
+};
 
 void apply_game_settings(const std::vector<Game> games, std::function<std::string(const Game &)> game_settings_file_getter)
 {
@@ -22,12 +64,12 @@ void apply_game_settings(const std::vector<Game> games, std::function<std::strin
             }
             catch (const std::exception &e)
             {
-                std::cout << e.what() << std::endl;
+                Logger::error("Error applying game settings: " + std::string(e.what()));
             }
         }
         else
         {
-            std::cout << applied_game_settings_file_path << " not exists" << std::endl;
+            Logger::error(applied_game_settings_file_path.string() + " not exists");
         }
     }
 }
@@ -35,13 +77,15 @@ void apply_game_settings(const std::vector<Game> games, std::function<std::strin
 void apply_native_settings(const Config &config)
 {
     util::change_monitor_settings(config.native_monitor_settings.width, config.native_monitor_settings.height, config.native_monitor_settings.refresh_rate);
-    apply_game_settings(config.games, [](const Game &game) { return game.native_settings_file_path; });
+    apply_game_settings(config.games, [](const Game &game)
+                        { return game.native_settings_file_path; });
 }
 
 void apply_streaming_settings(const Config &config)
 {
     util::change_monitor_settings(config.streaming_monitor_settings.width, config.streaming_monitor_settings.height, config.streaming_monitor_settings.refresh_rate);
-    apply_game_settings(config.games, [](const Game &game) { return game.streaming_settings_file_path; });
+    apply_game_settings(config.games, [](const Game &game)
+                        { return game.streaming_settings_file_path; });
 }
 
 int main()
@@ -49,7 +93,7 @@ int main()
     auto config_file_path = std::filesystem::path(util::get_executable_directory()) / "config.json";
     if (!std::filesystem::exists(config_file_path))
     {
-        std::cout << "Config file not found" << std::endl;
+        Logger::error(config_file_path.string() + " not found");
         return 1;
     }
     std::ifstream f(config_file_path);
@@ -60,7 +104,7 @@ int main()
     }
     catch (const std::exception &e)
     {
-        std::cout << "Error parsing config file: " << e.what() << std::endl;
+        Logger::error("Error parsing config file: " + std::string(e.what()));
         return 1;
     }
     auto height = util::get_resolution_height();
