@@ -45,7 +45,7 @@ namespace util
         }
     }
 
-    void delete_and_copy_file(const std::filesystem::path &source, const std::filesystem::path &destination)
+    void overwrite_file(const std::filesystem::path &source, const std::filesystem::path &destination)
     {
         if (!std::filesystem::exists(source))
         {

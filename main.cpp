@@ -18,7 +18,7 @@ void apply_native_settings(const Config &config)
         {
             try
             {
-                util::delete_and_copy_file(native_settings_file_path, settings_file_path);
+                util::overwrite_file(native_settings_file_path, settings_file_path);
             }
             catch (const std::exception &e)
             {
@@ -43,7 +43,7 @@ void apply_streaming_settings(const Config &config)
         {
             try
             {
-                util::delete_and_copy_file(streaming_settings_file_path, settings_file_path);
+                util::overwrite_file(streaming_settings_file_path, settings_file_path);
             }
             catch (const std::exception &e)
             {
