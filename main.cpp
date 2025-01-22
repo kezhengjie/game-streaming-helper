@@ -16,7 +16,14 @@ void apply_native_settings(const Config &config)
         auto settings_file_path = std::filesystem::path(game.settings_file_path);
         if (std::filesystem::exists(native_settings_file_path))
         {
-            std::filesystem::copy_file(native_settings_file_path, settings_file_path, std::filesystem::copy_options::overwrite_existing);
+            try
+            {
+                util::delete_and_copy_file(native_settings_file_path, settings_file_path);
+            }
+            catch (const std::exception &e)
+            {
+                std::cout << e.what() << std::endl;
+            }
         }
         else
         {
@@ -34,7 +41,14 @@ void apply_streaming_settings(const Config &config)
         auto settings_file_path = std::filesystem::path(game.settings_file_path);
         if (std::filesystem::exists(streaming_settings_file_path))
         {
-            std::filesystem::copy_file(streaming_settings_file_path, settings_file_path, std::filesystem::copy_options::overwrite_existing);
+            try
+            {
+                util::delete_and_copy_file(streaming_settings_file_path, settings_file_path);
+            }
+            catch (const std::exception &e)
+            {
+                std::cout << e.what() << std::endl;
+            }
         }
         else
         {
