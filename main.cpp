@@ -8,11 +8,11 @@
 #include "config.h"
 #include "util.h"
 
-void apply_game_settings(const std::vector<Game> games, std::function<std::string(const Game &)> game_settings_filepath_getter)
+void apply_game_settings(const std::vector<Game> games, std::function<std::string(const Game &)> game_settings_file_getter)
 {
     for (const auto &game : games)
     {
-        auto applied_game_settings_file_path = std::filesystem::path(game_settings_filepath_getter(game));
+        auto applied_game_settings_file_path = std::filesystem::path(game_settings_file_getter(game));
         auto game_settings_file_path = std::filesystem::path(game.settings_file_path);
         if (std::filesystem::exists(applied_game_settings_file_path))
         {
