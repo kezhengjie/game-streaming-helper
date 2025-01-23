@@ -110,7 +110,7 @@ MainWindow::MainWindow(QWidget* parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    connect(ui->pushButton, &QPushButton::clicked, this, []() -> void { switch_enviroment(); });
+    // connect(ui->pushButton, &QPushButton::clicked, this, []() -> void { switch_enviroment(); });
 }
 
 MainWindow::~MainWindow()

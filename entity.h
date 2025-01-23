@@ -33,6 +33,20 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Monitor, streaming, native)
 struct Config {
     std::vector<Game> games;
     Monitor monitor;
+
+    static const Config& default_config()
+    {
+        static Config config {
+            .games = std::vector<Game> {},
+            .monitor = Monitor {
+                .streaming = MonitorSettings {
+                    .width = 1280,
+                    .height = 720,
+                    .refresh_rate = 60 },
+                .native = MonitorSettings { .width = 1920, .height = 1080, .refresh_rate = 60 } }
+        };
+        return config;
+    }
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Config, games, monitor)
