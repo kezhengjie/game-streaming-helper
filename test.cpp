@@ -1,11 +1,11 @@
 #include "Windows.h"
-#include <Windows.h>
-#include <iostream>
-#include <fstream>
+#include "entity.h"
 #include "util.h"
+#include <Windows.h>
 #include <filesystem>
+#include <fstream>
+#include <iostream>
 #include <nlohmann/json.hpp>
-#include "config.h"
 
 void show_dm(const DEVMODE &dm)
 {
@@ -78,7 +78,7 @@ void read_config()
         return;
     }
     std::ifstream f(config_file_path);
-    Config config;
+    entity::Config config;
     try
     {
         auto obj = nlohmann::json::parse(f);

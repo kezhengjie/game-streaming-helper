@@ -20,14 +20,13 @@ set(PROJECT_SOURCES
         mainwindow.ui
         util.cpp
         util.h
-        config.h
-        game.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(game-streaming-helper
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        entity.h
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET game-streaming-helper APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -73,3 +72,6 @@ install(TARGETS game-streaming-helper
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(game-streaming-helper)
 endif()
+
+
+add_executable(test test.cpp util.cpp)
