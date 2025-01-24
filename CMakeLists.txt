@@ -20,6 +20,7 @@ set(PROJECT_SOURCES
         mainwindow.ui
         util.cpp
         util.h
+        game-streaming-helper.rc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
