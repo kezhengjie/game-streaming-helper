@@ -136,8 +136,38 @@ void basic_logfile_example()
     }
 }
 
+void test_get_monitor_settings()
+{
+    struct MapComparer {
+        bool operator()(const std::string& lhs, const std::string& rhs) const
+        {
+            auto index = lhs.find("x");
+            auto lhs_width = std::stoi(lhs.substr(0, index));
+            auto lhs_height = std::stoi(lhs.substr(index + 1));
+            index = rhs.find("x");
+            auto rhs_width = std::stoi(rhs.substr(0, index));
+            auto rhs_height = std::stoi(rhs.substr(index + 1));
+            return std::tie(lhs_width, lhs_height) < std::tie(rhs_width, rhs_height);
+        }
+    };
+
+    auto settings = util::get_monitor_settings();
+    std::map<std::string, std::set<int>, MapComparer> settings_map;
+    for (const auto& setting : settings) {
+        settings_map[std::to_string(setting.width) + "x" + std::to_string(setting.height)].insert(setting.refresh_rate);
+    }
+    for (const auto& [resolution, refresh_rates] : settings_map) {
+        std::cout << resolution << ": ";
+        for (const auto& refresh_rate : refresh_rates) {
+            std::cout << refresh_rate << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
 int main()
 {
     // basic_logfile_example();
-    write_config();
+    // write_config();
+    test_get_monitor_settings();
 }

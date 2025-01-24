@@ -75,4 +75,4 @@ if(QT_VERSION_MAJOR EQUAL 6)
 endif()
 
 
-add_executable(test test.cpp util.cpp)
+add_executable(test test.cpp util.cpp util.h)

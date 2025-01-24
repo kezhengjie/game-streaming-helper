@@ -19,6 +19,23 @@ struct MonitorSettings {
     int width;
     int height;
     int refresh_rate;
+
+    bool operator<(const MonitorSettings& other) const
+    {
+        return std::tie(width, height, refresh_rate) < std::tie(other.width, other.height, other.refresh_rate);
+    }
+
+    friend std::ostream& operator<<(std::ostream& os,const MonitorSettings& ms)
+    {
+        return os << std::string(ms);
+    }
+
+    operator std::string() const
+    {
+        return std::to_string(width) + "x"
+            + std::to_string(height) + "@"
+            + std::to_string(refresh_rate) + "Hz";
+    }
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MonitorSettings, width, height, refresh_rate)

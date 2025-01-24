@@ -108,12 +108,46 @@ int switch_enviroment()
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , is_streaming_(false)
+    , resolution_map_()
 {
     ui->setupUi(this);
-    // connect(ui->pushButton, &QPushButton::clicked, this, []() -> void { switch_enviroment(); });
+    connect(ui->switch_mode_button, &QToolButton::clicked, this, [&]() -> void {
+        if (is_streaming_) {
+            is_streaming_ = false;
+            ui->switch_mode_button->setIcon(QIcon(QIcon::fromTheme(QIcon::ThemeIcon::MediaPlaybackStart)));
+        } else {
+            is_streaming_ = true;
+            ui->switch_mode_button->setIcon(QIcon(QIcon::fromTheme(QIcon::ThemeIcon::MediaPlaybackStop)));
+        }
+    });
+    try {
+        this->load_config();
+    } catch (const std::exception& e) {
+    }
+    auto monitor_settings = util::get_monitor_settings();
+    for (auto it = monitor_settings.rbegin(); it != monitor_settings.rend(); it++) {
+        auto& setting = *it;
+        auto resolution = QString("%1x%2@%3Hz")
+                              .arg(setting.width)
+                              .arg(setting.height)
+                              .arg(setting.refresh_rate);
+        ui->resolution_list->addItem(resolution);
+        resolution_map_[resolution] = setting;
+    }
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::load_config()
+{
+    auto config_file_path = std::filesystem::path(util::get_executable_directory()) / "config.json";
+    if (!std::filesystem::exists(config_file_path)) {
+        throw std::runtime_error(config_file_path.string() + " not found");
+    }
+    std::ifstream f(config_file_path);
+    config_ = nlohmann::json::parse(f);
 }

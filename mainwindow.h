@@ -1,7 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "entity.h"
 #include <QMainWindow>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -19,5 +21,10 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    bool is_streaming_;
+    std::map<QString, entity::MonitorSettings> resolution_map_;
+    entity::Config config_;
+
+    void load_config();
 };
 #endif // MAINWINDOW_H

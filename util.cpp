@@ -5,6 +5,23 @@
 #include <windows.h>
 
 namespace util {
+
+std::set<entity::MonitorSettings> get_monitor_settings()
+{
+    std::set<entity::MonitorSettings> settings;
+    DEVMODE dm;
+    ZeroMemory(&dm, sizeof(dm));
+    dm.dmSize = sizeof(dm);
+    for (int i = 0; EnumDisplaySettings(NULL, i, &dm); i++) {
+        entity::MonitorSettings setting;
+        setting.width = dm.dmPelsWidth;
+        setting.height = dm.dmPelsHeight;
+        setting.refresh_rate = dm.dmDisplayFrequency;
+        settings.insert(setting);
+    }
+    return settings;
+}
+
 std::string get_executable_directory()
 {
     char temp[MAX_PATH];
