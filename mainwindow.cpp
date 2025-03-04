@@ -5,9 +5,11 @@
 //
 #include "entity.h"
 #include "util.h"
+#include <QDebug>
 #include <filesystem>
 #include <fstream>
 #include <functional>
+#include <iostream>
 #include <vector>
 
 #include "spdlog/sinks/basic_file_sink.h"
@@ -110,6 +112,8 @@ MainWindow::MainWindow(QWidget* parent)
     , ui(new Ui::MainWindow)
     , is_streaming_(false)
     , resolution_map_()
+    , tray_icon_(nullptr)
+    , tray_icon_menu_(nullptr)
 {
     ui->setupUi(this);
     connect(ui->switch_mode_button, &QToolButton::clicked, this, [&]() -> void {
@@ -134,6 +138,42 @@ MainWindow::MainWindow(QWidget* parent)
                               .arg(setting.refresh_rate);
         ui->resolution_list->addItem(resolution);
         resolution_map_[resolution] = setting;
+    }
+    this->setup_system_tray_();
+}
+
+void MainWindow::setup_system_tray_()
+{
+    this->tray_icon_menu_ = new QMenu(this);
+    QAction* monitor_action = nullptr;
+    monitor_action = new QAction(QString(std::string(this->config_.monitor.native).c_str()), this);
+    connect(monitor_action, &QAction::triggered, this, [&]() -> void { });
+    this->tray_icon_menu_->addAction(monitor_action);
+    monitor_action = new QAction(QString(std::string(this->config_.monitor.streaming).c_str()), this);
+    connect(monitor_action, &QAction::triggered, this, [&]() -> void { });
+    this->tray_icon_menu_->addAction(monitor_action);
+    this->tray_icon_menu_->addSeparator();
+    auto quit_action = new QAction("退出", this);
+    connect(quit_action, &QAction::triggered, qApp, &QCoreApplication::quit);
+    this->tray_icon_menu_->addAction(quit_action);
+    this->tray_icon_ = new QSystemTrayIcon(this);
+    this->tray_icon_->setContextMenu(this->tray_icon_menu_);
+    auto app_icon = QIcon(":/icon.ico");
+    this->tray_icon_->setIcon(app_icon);
+    this->setWindowIcon(app_icon);
+    this->tray_icon_->show();
+    connect(this->tray_icon_, &QSystemTrayIcon::activated, this, &MainWindow::icon_activated);
+}
+
+void MainWindow::icon_activated(QSystemTrayIcon::ActivationReason reason_)
+{
+    switch (reason_) {
+    case QSystemTrayIcon::Context: {
+        QPoint pos = QCursor::pos();
+        this->tray_icon_menu_->popup(QPoint { pos.x(), pos.y() - this->tray_icon_menu_->sizeHint().height() });
+        break;
+    }
+    default:;
     }
 }
 
