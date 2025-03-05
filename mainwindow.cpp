@@ -160,7 +160,6 @@ void MainWindow::setup_system_tray_()
     this->tray_icon_->setContextMenu(this->tray_icon_menu_);
     auto app_icon = QIcon(":/icon.ico");
     this->tray_icon_->setIcon(app_icon);
-    this->setWindowIcon(app_icon);
     this->tray_icon_->show();
     connect(this->tray_icon_, &QSystemTrayIcon::activated, this, &MainWindow::icon_activated);
 }
