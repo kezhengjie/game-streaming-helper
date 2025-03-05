@@ -6,6 +6,8 @@
 #include "entity.h"
 #include "util.h"
 #include <QDebug>
+#include <QCloseEvent>
+
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -164,6 +166,12 @@ void MainWindow::setup_system_tray_()
     connect(this->tray_icon_, &QSystemTrayIcon::activated, this, &MainWindow::icon_activated);
 }
 
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+    this->hide();
+    event->ignore();
+}
+
 void MainWindow::icon_activated(QSystemTrayIcon::ActivationReason reason_)
 {
     switch (reason_) {
@@ -171,6 +179,9 @@ void MainWindow::icon_activated(QSystemTrayIcon::ActivationReason reason_)
         QPoint pos = QCursor::pos();
         this->tray_icon_menu_->popup(QPoint { pos.x(), pos.y() - this->tray_icon_menu_->sizeHint().height() });
         break;
+    }
+    case QSystemTrayIcon::DoubleClick: {
+        this->show();
     }
     default:;
     }

@@ -22,6 +22,9 @@ public:
 public slots:
     void icon_activated(QSystemTrayIcon::ActivationReason reason_);
 
+protected:
+    void closeEvent(QCloseEvent* event) override;
+
 private:
     Ui::MainWindow* ui;
     bool is_streaming_;
