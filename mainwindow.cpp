@@ -5,8 +5,8 @@
 //
 #include "entity.h"
 #include "util.h"
-#include <QDebug>
 #include <QCloseEvent>
+#include <QDebug>
 
 #include <filesystem>
 #include <fstream>
